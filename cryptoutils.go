@@ -228,6 +228,23 @@ func GenerateKeyStdin() *[KeySize]byte {
 	return key
 }
 
+// ReadKeyStdin reads the decryption key from stdin
+func ReadKeyStdin() *[KeySize]byte {
+
+	var key *[KeySize]byte
+
+	for key == nil {
+		pass, err := PasswordPrompt("enter password: ")
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			key = GenerateKey(pass)
+		}
+	}
+
+	return key
+}
+
 // PasswordPrompt reads a password from stdin without echoing the typed characters
 func PasswordPrompt(prompt string) (password string, err error) {
 
@@ -332,6 +349,7 @@ func HashFile(path string, hashFunc HashFunc) (string, error) {
 
 // HashDir walks a directory and hashes all files inside
 // afterwards all hashes are concatenated and hashed again
+// this works because the order in which filepath.Walk walks the files is always the same
 func HashDir(path string, hashFunc HashFunc) (string, error) {
 
 	var (
@@ -340,6 +358,10 @@ func HashDir(path string, hashFunc HashFunc) (string, error) {
 	)
 
 	err := filepath.Walk(path, func(name string, info os.FileInfo, err error) error {
+
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		// ignore directories
 		if !info.IsDir() {
@@ -392,37 +414,38 @@ func RandomString(length int) (string, error) {
 }
 
 /*
- *	Number Parsing
+ *	Integer Conversion
  */
 
-// ConvertInt coverts an int
-func ConvertInt(s string) {
+// ConvertInt coverts an int into bin, hex, dec and oct
+func ConvertInt(s string) (bin, oct, dec, hex string, err error) {
 
 	// ParseInt interprets a string s in the given base (2 to 36) and returns the corresponding value i.
 	// If base == 0, the base is implied by the string's prefix: base 16 for "0x", base 8 for "0", and base 10 otherwise.
 	n, err := strconv.ParseInt(s, 0, 0)
 	if err != nil {
-		log.Fatal(err)
+		return "", "", "", "", err
 	}
 
-	fmt.Println("BIN:", ToBin(n))
-	fmt.Println("OCT:", ToOct(n))
-	fmt.Println("DEC:", ToDec(n))
-	fmt.Println("HEX:", ToHex(n))
+	return ToBin(n), ToOct(n), ToDec(n), ToHex(n), nil
 }
 
+// ToBin returns the binary representation of n
 func ToBin(n int64) string {
 	return strconv.FormatInt(n, 2)
 }
 
+// ToOct returns the octal representation of n
 func ToOct(n int64) string {
 	return strconv.FormatInt(n, 8)
 }
 
+// ToDec returns the decimal representation of n
 func ToDec(n int64) string {
 	return strconv.FormatInt(n, 10)
 }
 
+// ToHex returns the hex representation of n
 func ToHex(n int64) string {
 	return strconv.FormatInt(n, 16)
 }
