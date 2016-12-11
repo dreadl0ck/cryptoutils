@@ -4,5 +4,4 @@
 
 ## commandline tool
 
-- read input from stdin
-- encrypting / decrypting files + directories
+- encrypting / decrypting directories

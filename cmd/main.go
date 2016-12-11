@@ -4,7 +4,6 @@ import (
 	"c0de/cryptoutils"
 	"encoding/base64"
 	"encoding/hex"
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -28,7 +27,7 @@ var (
 
 // errors
 var (
-	ErrCommandIncomplete = errors.New("command incomplete")
+// ErrCommandIncomplete = errors.New("command incomplete")
 )
 
 // usage:
@@ -36,23 +35,24 @@ var (
 // hashing:
 // cryptotool -md5 -f <filename>
 // cryptotool -md5 -s teststring
+// ...
 
 // crypto:
-//  cryptotool encrypt <filename>
-//  cryptotool encrypt <dirname>
+// cryptotool encrypt <filename>
+// cryptotool encrypt <dirname>
 
-//  cryptotool decrypt <filename>
-//  cryptotool decrypt <dirname>
+// cryptotool decrypt <filename>
+// cryptotool decrypt <dirname>
 
 // read from stdin and decrypt to stdout
-//  cryptotool encrypt -
+// cryptotool encrypt -
 
 // cryptotool
 func main() {
 
 	flag.Parse()
 
-	if len(os.Args) > 2 {
+	if len(os.Args) > 1 {
 
 		switch true {
 		case *flagMD5:
@@ -64,12 +64,21 @@ func main() {
 					log.Fatal(err)
 				}
 				fmt.Println(hash)
-				return
 
 			} else if isSet(*flagString) {
 				fmt.Println(hex.EncodeToString(cryptoutils.MD5Data([]byte(*flagString))))
+			} else if isSet(*flagDir) {
+				hash, err := cryptoutils.HashDir(*flagDir, cryptoutils.MD5Data)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Println(hash)
 			} else {
-				log.Fatal(ErrCommandIncomplete)
+				data, err := ioutil.ReadAll(os.Stdin)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Println(hex.EncodeToString(cryptoutils.MD5Data(data)))
 			}
 
 		case *flagSha1:
@@ -81,12 +90,21 @@ func main() {
 					log.Fatal(err)
 				}
 				fmt.Println(hash)
-				return
 
 			} else if isSet(*flagString) {
 				fmt.Println(hex.EncodeToString(cryptoutils.Sha1Data([]byte(*flagString))))
+			} else if isSet(*flagDir) {
+				hash, err := cryptoutils.HashDir(*flagDir, cryptoutils.Sha1Data)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Println(hash)
 			} else {
-				log.Fatal(ErrCommandIncomplete)
+				data, err := ioutil.ReadAll(os.Stdin)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Println(hex.EncodeToString(cryptoutils.Sha1Data(data)))
 			}
 
 		case *flagSha256:
@@ -98,12 +116,21 @@ func main() {
 					log.Fatal(err)
 				}
 				fmt.Println(hash)
-				return
 
 			} else if isSet(*flagString) {
 				fmt.Println(hex.EncodeToString(cryptoutils.Sha256Data([]byte(*flagString))))
+			} else if isSet(*flagDir) {
+				hash, err := cryptoutils.HashDir(*flagDir, cryptoutils.Sha256Data)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Println(hash)
 			} else {
-				log.Fatal(ErrCommandIncomplete)
+				data, err := ioutil.ReadAll(os.Stdin)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Println(hex.EncodeToString(cryptoutils.Sha256Data(data)))
 			}
 
 		case *flagSha512:
@@ -115,12 +142,21 @@ func main() {
 					log.Fatal(err)
 				}
 				fmt.Println(hash)
-				return
 
 			} else if isSet(*flagString) {
 				fmt.Println(hex.EncodeToString(cryptoutils.Sha512Data([]byte(*flagString))))
+			} else if isSet(*flagDir) {
+				hash, err := cryptoutils.HashDir(*flagDir, cryptoutils.Sha512Data)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Println(hash)
 			} else {
-				log.Fatal(ErrCommandIncomplete)
+				data, err := ioutil.ReadAll(os.Stdin)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Println(hex.EncodeToString(cryptoutils.Sha512Data(data)))
 			}
 
 		case *flagBase64:
@@ -132,12 +168,15 @@ func main() {
 					log.Fatal(err)
 				}
 				fmt.Println(base64.StdEncoding.EncodeToString(content))
-				return
 
 			} else if isSet(*flagString) {
 				fmt.Println(base64.StdEncoding.EncodeToString([]byte(*flagString)))
 			} else {
-				log.Fatal(ErrCommandIncomplete)
+				data, err := ioutil.ReadAll(os.Stdin)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Println(base64.StdEncoding.EncodeToString(data))
 			}
 
 		case os.Args[1] == "convert":

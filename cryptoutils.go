@@ -36,6 +36,8 @@ import (
 
 	"crypto/sha512"
 
+	"path/filepath"
+
 	"golang.org/x/crypto/nacl/box"
 	"golang.org/x/crypto/nacl/secretbox"
 	"golang.org/x/crypto/ssh/terminal"
@@ -57,6 +59,9 @@ const (
 	KeySize   = 32
 	NonceSize = 24
 )
+
+// HashFunc is a function that calculates a hash
+type HashFunc func([]byte) []byte
 
 /*
  *	Nonce
@@ -252,28 +257,12 @@ func PasswordPrompt(prompt string) (password string, err error) {
 
 // MD5 returns an md5 hash of the given string
 func MD5(text string) string {
-
-	// init md5 hasher
-	hasher := md5.New()
-
-	// write data into it
-	hasher.Write([]byte(text))
-
-	// return as string
-	return hex.EncodeToString(hasher.Sum(nil))
+	return hex.EncodeToString(MD5Data([]byte(text)))
 }
 
 // Sha256 generates a Sha256 for the given string
 func Sha256(text string) []byte {
-
-	// init sha256 hasher
-	h256 := sha256.New()
-
-	// write data into it
-	io.WriteString(h256, text)
-
-	// return as []byte
-	return h256.Sum(nil)
+	return Sha256Data([]byte(text))
 }
 
 // hashFuncs
@@ -327,7 +316,7 @@ func Sha512Data(data []byte) []byte {
 }
 
 // HashFile calculates the hash for the contents of file
-func HashFile(path string, hashFunc func(data []byte) []byte) (string, error) {
+func HashFile(path string, hashFunc HashFunc) (string, error) {
 
 	content, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -339,6 +328,42 @@ func HashFile(path string, hashFunc func(data []byte) []byte) (string, error) {
 	}
 
 	return hex.EncodeToString(hashFunc(content)), nil
+}
+
+// HashDir walks a directory and hashes all files inside
+// afterwards all hashes are concatenated and hashed again
+func HashDir(path string, hashFunc HashFunc) (string, error) {
+
+	var (
+		hashes = []string{}
+		result string
+	)
+
+	err := filepath.Walk(path, func(name string, info os.FileInfo, err error) error {
+
+		// ignore directories
+		if !info.IsDir() {
+
+			fmt.Println("hashing:", name)
+
+			h, err := HashFile(name, hashFunc)
+			if err != nil {
+				return err
+			}
+
+			hashes = append(hashes, h)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, h := range hashes {
+		result += h
+	}
+
+	return hex.EncodeToString(hashFunc([]byte(result))), nil
 }
 
 // Base64 returns the base64 string for the given input
