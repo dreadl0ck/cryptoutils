@@ -2,10 +2,9 @@
 
 ## Library
 
-- user must handle key + staticNonce
-
 ## commandline tool
 
-- encrypting / decrypting files
+- calculate hash of file
+- encrypting / decrypting files + directories
 - hashing
 - number conversion

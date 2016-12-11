@@ -270,11 +270,11 @@ func Sha256(data string) []byte {
  *	Random
  */
 
-// RandomString generates a 32byte random string
-func RandomString() (string, error) {
+// RandomString generates a lentgh bytes long random string
+func RandomString(length int) (string, error) {
 
 	// init byteslice
-	rb := make([]byte, 32)
+	rb := make([]byte, length)
 
 	// read from /dev/rand
 	_, err := rand.Read(rb)
