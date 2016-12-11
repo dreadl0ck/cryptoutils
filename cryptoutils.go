@@ -20,6 +20,7 @@ package cryptoutils
 import (
 	"crypto/md5"
 	"crypto/rand"
+	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
@@ -28,6 +29,12 @@ import (
 	"io"
 	"log"
 	"os"
+
+	"strconv"
+
+	"io/ioutil"
+
+	"crypto/sha512"
 
 	"golang.org/x/crypto/nacl/box"
 	"golang.org/x/crypto/nacl/secretbox"
@@ -40,6 +47,9 @@ var (
 
 	// ErrDecrypt means something went wrong decrypting
 	ErrDecrypt = errors.New("error decrypting")
+
+	// ErrEmptyFile means the file is empty
+	ErrEmptyFile = errors.New("file is empty")
 )
 
 // KeySize is 256bit
@@ -253,24 +263,94 @@ func MD5(text string) string {
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
-// Sha256 generates a Sha256 for the given data
-func Sha256(data string) []byte {
+// Sha256 generates a Sha256 for the given string
+func Sha256(text string) []byte {
 
 	// init sha256 hasher
 	h256 := sha256.New()
 
 	// write data into it
-	io.WriteString(h256, data)
+	io.WriteString(h256, text)
 
 	// return as []byte
 	return h256.Sum(nil)
+}
+
+// hashFuncs
+
+// MD5Data returns an md5 hash for the given data
+func MD5Data(data []byte) []byte {
+
+	// init md5 hasher
+	hasher := md5.New()
+
+	// write data into it
+	hasher.Write(data)
+
+	return hasher.Sum(nil)
+}
+
+// Sha1Data calculates the Sha1 for the given data
+func Sha1Data(data []byte) []byte {
+
+	// init sha256 hasher
+	h := sha1.New()
+
+	// write data into it
+	h.Write(data)
+
+	return h.Sum(nil)
+}
+
+// Sha256Data calculates the Sha256 for the given data
+func Sha256Data(data []byte) []byte {
+
+	// init sha256 hasher
+	h256 := sha256.New()
+
+	// write data into it
+	h256.Write(data)
+
+	return h256.Sum(nil)
+}
+
+// Sha512Data calculates the sha512 for the given data
+func Sha512Data(data []byte) []byte {
+
+	// init sha512 hasher
+	h512 := sha512.New()
+
+	// write data into it
+	h512.Write(data)
+
+	return h512.Sum(nil)
+}
+
+// HashFile calculates the hash for the contents of file
+func HashFile(path string, hashFunc func(data []byte) []byte) (string, error) {
+
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		return "", err
+	}
+
+	if len(content) == 0 {
+		return "", ErrEmptyFile
+	}
+
+	return hex.EncodeToString(hashFunc(content)), nil
+}
+
+// Base64 returns the base64 string for the given input
+func Base64(text string) string {
+	return base64.StdEncoding.EncodeToString([]byte(text))
 }
 
 /*
  *	Random
  */
 
-// RandomString generates a lentgh bytes long random string
+// RandomString generates a length bytes long random string
 func RandomString(length int) (string, error) {
 
 	// init byteslice
@@ -284,4 +364,40 @@ func RandomString(length int) (string, error) {
 
 	// return as string
 	return base64.URLEncoding.EncodeToString(rb), nil
+}
+
+/*
+ *	Number Parsing
+ */
+
+// ConvertInt coverts an int
+func ConvertInt(s string) {
+
+	// ParseInt interprets a string s in the given base (2 to 36) and returns the corresponding value i.
+	// If base == 0, the base is implied by the string's prefix: base 16 for "0x", base 8 for "0", and base 10 otherwise.
+	n, err := strconv.ParseInt(s, 0, 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("BIN:", ToBin(n))
+	fmt.Println("OCT:", ToOct(n))
+	fmt.Println("DEC:", ToDec(n))
+	fmt.Println("HEX:", ToHex(n))
+}
+
+func ToBin(n int64) string {
+	return strconv.FormatInt(n, 2)
+}
+
+func ToOct(n int64) string {
+	return strconv.FormatInt(n, 8)
+}
+
+func ToDec(n int64) string {
+	return strconv.FormatInt(n, 10)
+}
+
+func ToHex(n int64) string {
+	return strconv.FormatInt(n, 16)
 }

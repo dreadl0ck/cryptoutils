@@ -4,7 +4,5 @@
 
 ## commandline tool
 
-- calculate hash of file
+- read input from stdin
 - encrypting / decrypting files + directories
-- hashing
-- number conversion
