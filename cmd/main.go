@@ -161,6 +161,22 @@ func main() {
 	}
 }
 
+func encryptFile() {
+
+}
+
+func decryptFile() {
+
+}
+
+func encryptDir() {
+
+}
+
+func decryptDir() {
+
+}
+
 func hash(hashFunc cryptoutils.HashFunc) {
 	if isSet(*flagFile) {
 

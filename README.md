@@ -1,6 +1,7 @@
 # cryptoutils
 
-cryptoutils is a go library that provides functions for encryption, hashing and securely reading passwords from stdin.
+cryptoutils is a go library that provides functions for en-/decryption with the NaCl toolkit,
+hashing, integer conversion and securely reading passwords from stdin.
 
 ## Library
 
@@ -16,7 +17,7 @@ func SymmetricEncryptStatic(data string, staticNonce *[NonceSize]byte, key *[Key
 func AsymmetricDecrypt(data []byte, pubKey, privKey *[KeySize]byte) ([]byte, bool)
 func AsymmetricEncrypt(data []byte, pubKey, privKey *[KeySize]byte) ([]byte, error)
 
-// Key & Nonce Generation 
+// Key & Nonce Generation
 func GenerateKey(data string) *[KeySize]byte
 func GenerateKeyStdin() *[KeySize]byte
 func GenerateKeypair() (pubKey, privKey *[KeySize]byte, err error)
@@ -37,7 +38,41 @@ func Sha256(data string) []byte
 see the tests for sample usage
 
 ```go
+// simple example for symmetric encryption
+key := GenerateKey("test")
 
+enc, err := SymmetricEncrypt(data, key)
+if err != nil {
+    log.Fatal("failed to encrypt: ", err)
+}
+
+dec, err := SymmetricDecrypt(enc, key)
+if err != nil {
+    log.Fatal("failed to decrypt: ", err)
+}
+
+// simple example for asymmetric encryption
+// peer 1
+pubKey1, privKey1, err := GenerateKeypair()
+if err != nil {
+    log.Fatal("failed to generate keypair: ", err)
+}
+
+// peer 2
+pubKey2, privKey2, err := GenerateKeypair()
+if err != nil {
+    log.Fatal("failed to generate keypair: ", err)
+}
+
+enc, err := AsymmetricEncrypt(data, pubKey1, privKey2)
+if err != nil {
+    log.Fatal("failed to encrypt: ", err)
+}
+
+dec, ok := AsymmetricDecrypt(enc, pubKey2, privKey1)
+if !ok {
+    log.Fatal("failed to decrypt")
+}
 ```
 
 ## CommandLine Tool
