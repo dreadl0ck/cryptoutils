@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"c0de/cryptoutils"
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
@@ -11,6 +10,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/dreadl0ck/cryptoutils"
 )
 
 // flags
