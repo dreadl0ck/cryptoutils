@@ -67,6 +67,8 @@ func BenchmarkSymmetricEncrypt(b *testing.B) {
 
 	key := GenerateKey("test")
 
+	b.ReportAllocs()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, err := SymmetricEncrypt(data, key)
 		if err != nil {
@@ -84,6 +86,8 @@ func BenchmarkSymmetricDecrypt(b *testing.B) {
 		b.Fatal("failed to encrypt: ", err)
 	}
 
+	b.ReportAllocs()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, err := SymmetricDecrypt(enc, key)
 		if err != nil {
@@ -100,6 +104,8 @@ func BenchmarkAsymmetricEncrypt(b *testing.B) {
 		b.Fatal("failed to generate keypair: ", err)
 	}
 
+	b.ReportAllocs()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, err := AsymmetricEncrypt(data, pubKey1, privKey1)
 		if err != nil {
@@ -121,6 +127,8 @@ func BenchmarkAsymmetricDecrypt(b *testing.B) {
 		b.Fatal("failed to encrypt: ", err)
 	}
 
+	b.ReportAllocs()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, ok := AsymmetricDecrypt(enc, pubKey1, privKey1)
 		if !ok {
