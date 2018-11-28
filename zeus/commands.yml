@@ -1,0 +1,29 @@
+# ________ ____  __ __  ______     
+#  \___   // __ \|  |  \/  ___/    
+#   /    /\  ___/|  |  /\___ \    
+#  /_____ \\___  >____//____  >  
+#        \/    \/           \/  
+#                    Build System
+#                          v0.8.4
+#
+
+
+
+# default language
+language: bash
+
+# globals for all commands
+globals:
+
+# command data
+commands:
+
+    install:
+        description: install commandline tool to $PATH and compile lib
+        help: Install the application to the default system location
+        exec: |
+            go build -o $(go env GOPATH)/bin/cryptotool -i github.com/dreadl0ck/cryptoutils/cmd
+
+    test:
+        description: run tests and benchmarks
+        exec: go test -v -bench=.

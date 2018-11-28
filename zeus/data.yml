@@ -1,0 +1,30 @@
+# ________ ____  __ __  ______     
+#  \___   // __ \|  |  \/  ___/    
+#   /    /\  ___/|  |  /\___ \    
+#  /_____ \\___  >____//____  >  
+#        \/    \/           \/  
+#                    Build System
+#                          v0.8.4
+#
+
+buildNumber: 0
+deadline: ""
+milestones: []
+aliases: {}
+events:
+  7c7e5b0fa114dafb:
+    name: config watcher
+    id: 7c7e5b0fa114dafb
+    path: zeus/config.yml
+    op: 2
+    fileextension: .yml
+    command: internal
+  fcc89784eedcdb97:
+    name: commandsFile watcher
+    id: fcc89784eedcdb97
+    path: zeus/commands.yml
+    op: 2
+    fileextension: .yml
+    command: internal
+author: ""
+keyBindings: {}
