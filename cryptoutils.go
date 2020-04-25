@@ -16,6 +16,8 @@ package cryptoutils
 import (
 	"crypto/md5"
 	"crypto/rand"
+	"encoding/binary"
+	mrand "math/rand"
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"
@@ -45,6 +47,20 @@ var (
 	// ErrEmptyFile means the file is empty
 	ErrEmptyFile = errors.New("file is empty")
 )
+
+// seed rand source on init automatically
+// with a cryptographically more secure method than using the system time in nanoseconds
+// while the system clock is maybe represented in nanoseconds, the system's clock precision isn't nanoseconds
+// to avoid pitfalls of clock based seed values, the crypto/rand.Read is used as source for the seed
+// see: https://stackoverflow.com/a/54491783
+func init() {
+	var b [8]byte
+	_, err := rand.Read(b[:])
+	if err != nil {
+		panic("cannot seed math/rand package with cryptographically secure random number generator")
+	}
+	mrand.Seed(int64(binary.LittleEndian.Uint64(b[:])))
+}
 
 // KeySize is 256bit
 const (
